@@ -1,0 +1,24 @@
+[package]
+name = "dydl"
+version = "0.1.0"
+edition = "2021"
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+clap = { version = "^3.1.18", features = ["derive"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "sync", "net", "fs", "signal", "time"] }
+reqwest = { version = "^0.11.11"}
+regex = {version = "^1"}
+json = {version = "^0.12.4"}
+pbr = {version = "^1.0.4"}
+futures = { version = "^0.3.23"}
+anyhow = { version = "^1.0.62"}
+async-trait = { version = "^0.1.57" }
+log = { version = "^0.4.17"}
+
+[profile.release]
+lto = "thin"
+opt-level="s"
+codegen-units = 1
+panic = "abort"
+strip = true
