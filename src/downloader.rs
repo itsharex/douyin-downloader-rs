@@ -1,4 +1,4 @@
-use std::{sync::Arc, fs};
+use std::sync::Arc;
 use futures::future::join_all;
 use reqwest::Client;
 use tokio::sync::RwLock;
@@ -19,8 +19,9 @@ pub struct Downloader {
     rw_lock: Arc<RwLock<u64>>,
 }
 
-#[cfg(any(windows))]
+#[cfg(target_family="windows")]
 async fn write_bytes_to_file(filepath: &str, bytes: &[u8], offset: u64) -> Result<usize, std::io::Error> {
+    use std::fs;
     use std::os::windows::fs::FileExt;
     let file = fs::OpenOptions::new()
                 .create(true)
@@ -29,28 +30,15 @@ async fn write_bytes_to_file(filepath: &str, bytes: &[u8], offset: u64) -> Resul
     file.seek_write(&bytes, offset)
 }
 
-#[cfg(any(unix))]
+#[cfg(target_family="unix")]
 async fn write_bytes_to_file(filepath: &str, bytes: &[u8], offset: u64) -> Result<usize, std::io::Error> {
+    use std::fs;
     use std::os::unix::fs::FileExt;
     let file = fs::OpenOptions::new()
                 .create(true)
                 .write(true)
                 .open(filepath)?;
-    file.write_at(&bytes, offset)
-}
-
-#[cfg(any(linux))]
-async fn write_bytes_to_file(filepath: &str, bytes: &[u8], offset: u64) -> Result<usize, std::io::Error> {
-    tokio_uring::start(async {
-        let file = OpenOptions::new()
-            .create(true)
-            .write(true)
-            .open("filepath")
-            .await?;
-        let (res, _) = file.write_at(bytes. offset).await;
-        let n = res?;
-        file.close().await?;
-    })
+    file.write_at(bytes, offset)
 }
 
 
